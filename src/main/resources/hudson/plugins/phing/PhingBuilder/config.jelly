@@ -1,0 +1,27 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+    <j:if test="${!empty(descriptor.installations)}">
+        <f:entry title="${%Phing Version}">
+            <select class="setting-input" name="phingBuilder.name">
+              <option>(${%Default})</option>
+              <j:forEach var="inst" items="${descriptor.installations}">
+                  <f:option selected="${inst.name==instance.name}">${inst.name}</f:option>
+              </j:forEach>
+            </select>
+        </f:entry>
+    </j:if>
+
+    <f:entry title="${%Targets}" help="${rootURL}/../plugin/phing/help-targets.html">
+        <f:expandableTextbox name="phingBuilder.targets" value="${instance.targets}" />
+    </f:entry>
+
+    <f:advanced>
+        <f:entry title="${%Phing Build File}" help="${rootURL}/../plugin/phing/help-buildfile.html">
+            <f:textbox name="phingBuilder.buildFile" value="${instance.buildFile}" />
+        </f:entry>
+        <f:entry title="${%Properties}" help="${rootURL}/../plugin/phing/help-properties.html">
+            <f:textarea name="phingBuilder.properties" value="${instance.properties}"/>
+        </f:entry>
+    </f:advanced>
+
+</j:jelly>

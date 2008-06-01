@@ -1,0 +1,36 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+    <f:section title="Phing" >
+        <f:entry title="${%Phing installation}"
+            description="${%List of Phing installations on this system}">
+            <f:repeatable name="phing" var="inst" items="${descriptor.installations}">
+                <table width="100%">
+
+                  <f:entry title="${%name}" help="${rootURL}/../plugin/phing/help-globalConfig-name.html">
+                    <input class="setting-input" name="phing.name"
+                      type="text" value="${inst.name}" />
+                  </f:entry>
+
+                  <f:entry title="${%PHING_HOME}" help="${rootURL}/../plugin/phing/help-globalConfig-PHING_HOME.html">
+                    <input class="setting-input validated" name="phing.phingHome"
+                      type="text" value="${inst.phingHome}"
+                      checkUrl="'${rootURL}/builder/PhingBuilder/checkPhingHome?value='+escape(this.value)" />
+                  </f:entry>
+
+                  <f:entry title="${%PHP Command}" help="${rootURL}/../plugin/phing/help-globalConfig-PHP_COMMAND.html">
+                    <input class="setting-input validated" name="phing.phpCommand"
+                      type="text" value="${inst.phpCommand}"
+                      checkUrl="'${rootURL}/builder/PhingBuilder/checkPhpCommand?value='+escape(this.value)" />
+                  </f:entry>
+
+                  <f:entry title="">
+                    <div align="right">
+                      <f:repeatableDeleteButton />
+                    </div>
+                  </f:entry>
+                </table>
+            </f:repeatable>
+        </f:entry>
+    </f:section>
+
+</j:jelly>
