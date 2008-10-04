@@ -8,15 +8,9 @@
   </parent>
 
   <artifactId>phing</artifactId>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>Hudosn Phing plugin</name>
   <description>This plugin allows you to use phing to build PHP projects.</description>
   <url>http://hudson.gotdns.com/wiki/display/HUDSON/Phing+Plugin</url>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/phing-0.2</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/phing-0.2</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/phing/tags/phing-0.2</url>
-  </scm>
 </project>
