@@ -134,9 +134,11 @@ public final class PhingBuilder extends Builder {
         }
 
         // Targets
-        final String normalizedTargets = targets.replaceAll("[\t\r\n]+", " ");
-        args.addTokenized(normalizedTargets);
-
+        if (targets != null) {
+            final String normalizedTargets = targets.replaceAll("[\t\r\n]+", " ");
+            args.addTokenized(normalizedTargets);
+        }
+        
         // Properties
         if (properties != null) {
             final Properties props = loadProperties();
