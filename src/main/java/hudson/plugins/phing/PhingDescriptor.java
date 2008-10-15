@@ -1,6 +1,7 @@
 package hudson.plugins.phing;
 
 import hudson.CopyOnWrite;
+import hudson.StructuredForm;
 import hudson.model.Descriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormFieldValidator;
@@ -34,9 +35,9 @@ public final class PhingDescriptor extends Descriptor<Builder> {
     }
 
     @Override
-    public boolean configure(final StaplerRequest req, final JSONObject json) throws FormException {
-        final List<PhingInstallation> list =
-                    req.bindJSONToList(PhingInstallation.class, json);
+    public boolean configure(final StaplerRequest req, final JSONObject formData) throws FormException {
+        final List<PhingInstallation> list = req.bindJSONToList(PhingInstallation.class,
+                formData.get("phing"));
         installations = list.toArray(new PhingInstallation[list.size()]);
         save();
         return true;
