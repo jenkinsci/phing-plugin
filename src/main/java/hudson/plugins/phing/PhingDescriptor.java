@@ -1,7 +1,6 @@
 package hudson.plugins.phing;
 
 import hudson.CopyOnWrite;
-import hudson.StructuredForm;
 import hudson.model.Descriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormFieldValidator;
