@@ -12,5 +12,5 @@
   <packaging>hpi</packaging>
   <name>Hudosn Phing plugin</name>
   <description>This plugin allows you to use phing to build PHP projects.</description>
-  <url>http://hudson.gotdns.com/wiki/display/HUDSON/Phing+Plugin</url>
+  <url>http://wiki.hudson-ci.org/display/HUDSON/Phing+Plugin</url>
 </project>
