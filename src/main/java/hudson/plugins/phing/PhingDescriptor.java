@@ -2,20 +2,19 @@ package hudson.plugins.phing;
 
 import hudson.CopyOnWrite;
 import hudson.model.Descriptor;
+import hudson.model.Hudson;
 import hudson.tasks.Builder;
-import hudson.util.FormFieldValidator;
 
+import hudson.util.FormValidation;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 
 import net.sf.json.JSONObject;
 
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Descriptor for Phing.
@@ -68,45 +67,40 @@ public final class PhingDescriptor extends Descriptor<Builder> {
         return req.bindJSON(PhingBuilder.class, formData);
     }
 
-    public void doCheckPhingHome(final StaplerRequest req, final StaplerResponse res) throws IOException, ServletException {
-        new FormFieldValidator(req, res, true) {
-            @Override
-            protected void check() throws IOException, ServletException {
-                final File f = getFileParameter("value");
-                if ("".equals(f.getPath().trim())) {
-                    error(Messages.Phing_PhingHomeRequired());
-                    return;
-                }
-                if (!f.isDirectory()) {
-                    error(Messages.Phing_NotAPHPCommand(f));
-                    return;
-                }
-                final File phing = new File(f, "bin" + File.separator + "phing.php");
-                if (!phing.exists()) {
-                    error(Messages.Phing_NotAPhingDirectory(f));
-                    return;
-                }
-                ok();
-            }
-        }.process();
+    public FormValidation doCheckPhingHome(@QueryParameter File value) {
+        if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+            return FormValidation.ok();
+        }
+
+        if ("".equals(value.getPath().trim())) {
+            return FormValidation.error(Messages.Phing_PhingHomeRequired());
+        }
+
+        if (!value.isDirectory()) {
+            return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
+        }
+
+        final File phing = new File(value, "bin" + File.separator + "phing.php");
+        if (!phing.exists()) {
+            return FormValidation.error(Messages.Phing_NotAPhingDirectory(value));
+        }
+
+        return FormValidation.ok();
     }
 
-    public void doCheckPhpCommand(final StaplerRequest req, final StaplerResponse res) throws IOException, ServletException {
-        new FormFieldValidator(req, res, true) {
-            @Override
-            protected void check() throws IOException, ServletException {
-                final File f = getFileParameter("value");
-                if ("".equals(f.getPath().trim())) {
-                    ok();
-                    return;
-                }
-                if (!f.exists()) {
-                    error(Messages.Phing_NotAPHPCommand(f));
-                    return;
-                }
-                ok();
-            }
-        }.process();
-    }
+    public FormValidation doCheckPhpCommand(@QueryParameter File value) {
+        if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
+            return FormValidation.ok();
+        }
+        
+        if ("".equals(value.getPath().trim())) {
+            return FormValidation.ok();
+        }
 
+        if (!value.exists()) {
+            return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
+        }
+
+        return FormValidation.ok();
+    }
 }

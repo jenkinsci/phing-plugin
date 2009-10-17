@@ -1,11 +1,11 @@
 package hudson.plugins.phing;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
 import hudson.tasks.Builder;
@@ -102,7 +102,7 @@ public final class PhingBuilder extends Builder {
             throws InterruptedException, IOException {
 
         ArgumentListBuilder args = new ArgumentListBuilder();
-        final Map<String, String> env = build.getEnvVars();
+        final EnvVars env = build.getEnvironment(listener);
 
         final PhingInstallation pi = getPhing();
 
@@ -123,12 +123,11 @@ public final class PhingBuilder extends Builder {
 
         // Build script
         FilePath buildFilePath;
-        final AbstractProject<?, ?> proj = build.getProject();
         if (buildFile == null) {
-            buildFilePath = proj.getModuleRoot().child("build.xml");
+            buildFilePath = build.getModuleRoot().child("build.xml");
         } else {
             final boolean absolute = new File(buildFile).isAbsolute();
-            buildFilePath = (absolute) ? new FilePath(new File(buildFile)) : proj.getModuleRoot().child(buildFile);
+            buildFilePath = (absolute) ? new FilePath(new File(buildFile)) : build.getModuleRoot().child(buildFile);
             args.add("-buildfile", buildFilePath.getName());
         }
 
@@ -171,9 +170,7 @@ public final class PhingBuilder extends Builder {
 
         final long startTime = System.currentTimeMillis();
         try {
-            final int result =
-                    launcher.launch(args.toCommandArray(), env,
-                    listener.getLogger(), buildFilePath.getParent()).join();
+            final int result = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(buildFilePath.getParent()).join();
             return result == 0;
         } catch (final IOException e) {
             Util.displayIOException(e, listener);

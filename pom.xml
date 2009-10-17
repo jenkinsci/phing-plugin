@@ -15,4 +15,9 @@
     <name>Hudson Phing plugin</name>
     <description>This plugin allows you to use phing to build PHP projects.</description>
     <url>http://wiki.hudson-ci.org/display/HUDSON/Phing+Plugin</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
 </project>
