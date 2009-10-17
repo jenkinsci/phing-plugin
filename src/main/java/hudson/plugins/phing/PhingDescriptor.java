@@ -101,6 +101,10 @@ public final class PhingDescriptor extends Descriptor<Builder> {
             return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
         }
 
+        if (value.isDirectory()) {
+            return FormValidation.error(Messages.Phing_DirectoryNotAllowed(value));
+        }
+
         return FormValidation.ok();
     }
 }
