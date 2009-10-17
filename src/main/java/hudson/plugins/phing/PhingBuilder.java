@@ -1,5 +1,6 @@
 package hudson.plugins.phing;
 
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
@@ -28,6 +29,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public final class PhingBuilder extends Builder {
 
+    @Extension
     public static final PhingDescriptor DESCRIPTOR = new PhingDescriptor();
 
     /**
@@ -74,8 +76,7 @@ public final class PhingBuilder extends Builder {
     }
 
     @DataBoundConstructor
-    public PhingBuilder(final String name, final String buildFile,
-            final String targets, final String properties) {
+    public PhingBuilder(final String name, final String buildFile, final String targets, final String properties) {
         this.name = Util.fixEmptyAndTrim(name);
         this.buildFile = Util.fixEmptyAndTrim(buildFile);
         this.targets = Util.fixEmptyAndTrim(targets);
@@ -91,13 +92,13 @@ public final class PhingBuilder extends Builder {
         return null;
     }
 
+    @Override
     public Descriptor<Builder> getDescriptor() {
         return DESCRIPTOR;
     }
 
     @Override
-    public boolean perform(final AbstractBuild<?, ?> build,
-            final Launcher launcher, final BuildListener listener)
+    public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener)
             throws InterruptedException, IOException {
 
         ArgumentListBuilder args = new ArgumentListBuilder();
@@ -127,9 +128,7 @@ public final class PhingBuilder extends Builder {
             buildFilePath = proj.getModuleRoot().child("build.xml");
         } else {
             final boolean absolute = new File(buildFile).isAbsolute();
-            buildFilePath =
-                    (absolute) ? new FilePath(new File(buildFile)) : proj
-                            .getModuleRoot().child(buildFile);
+            buildFilePath = (absolute) ? new FilePath(new File(buildFile)) : proj.getModuleRoot().child(buildFile);
             args.add("-buildfile", buildFilePath.getName());
         }
 
@@ -138,7 +137,7 @@ public final class PhingBuilder extends Builder {
             final String normalizedTargets = targets.replaceAll("[\t\r\n]+", " ");
             args.addTokenized(normalizedTargets);
         }
-        
+
         // Properties
         if (properties != null) {
             final Properties props = loadProperties();
@@ -155,22 +154,18 @@ public final class PhingBuilder extends Builder {
         // Environment variables
         if (pi != null && pi.getPhingHome() != null) {
             env.put("PHING_HOME", pi.getPhingHome());
-            env.put("PHING_CLASSPATH", pi.getPhingHome() + File.separator
-                    + "classes");
+            env.put("PHING_CLASSPATH", pi.getPhingHome() + File.separator + "classes");
         }
 
         if (!launcher.isUnix()) {
             args.add("&&", "exit", "%%ERRORLEVEL%%");
-            args =
-                    new ArgumentListBuilder().add("cmd.exe", "/C").addQuoted(
-                            args.toStringWithQuote());
+            args = new ArgumentListBuilder().add("cmd.exe", "/C").addQuoted(args.toStringWithQuote());
         }
 
         if (DEBUG) {
             final PrintStream logger = listener.getLogger();
             for (final Map.Entry<String, String> entry : env.entrySet()) {
-                logger.println("(DEBUG) env: key= " + entry.getKey()
-                        + " value= " + entry.getValue());
+                logger.println("(DEBUG) env: key= " + entry.getKey() + " value= " + entry.getValue());
             }
         }
 
@@ -178,8 +173,7 @@ public final class PhingBuilder extends Builder {
         try {
             final int result =
                     launcher.launch(args.toCommandArray(), env,
-                            listener.getLogger(), buildFilePath.getParent())
-                            .join();
+                    listener.getLogger(), buildFilePath.getParent()).join();
             return result == 0;
         } catch (final IOException e) {
             Util.displayIOException(e, listener);
@@ -190,8 +184,7 @@ public final class PhingBuilder extends Builder {
         }
     }
 
-    private String buildErrorMessage(final PhingInstallation pi,
-            final long processingTime) {
+    private String buildErrorMessage(final PhingInstallation pi, final long processingTime) {
         final StringBuffer msg = new StringBuffer();
         msg.append(Messages.Phing_ExecFailed());
         if (pi == null && processingTime < 1000) {
@@ -215,5 +208,4 @@ public final class PhingBuilder extends Builder {
         }
         return props;
     }
-
 }

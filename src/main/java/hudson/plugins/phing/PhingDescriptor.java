@@ -45,8 +45,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
     @Override
     public void convert(final Map<String, Object> oldPropertyBag) {
         if (oldPropertyBag.containsKey("installations")) {
-            installations =
-                    (PhingInstallation[]) oldPropertyBag.get("installations");
+            installations = (PhingInstallation[]) oldPropertyBag.get("installations");
         }
     }
 
@@ -65,13 +64,11 @@ public final class PhingDescriptor extends Descriptor<Builder> {
     }
 
     @Override
-    public PhingBuilder newInstance(final StaplerRequest req,
-            final JSONObject formData) throws FormException {
+    public PhingBuilder newInstance(final StaplerRequest req, final JSONObject formData) throws FormException {
         return req.bindJSON(PhingBuilder.class, formData);
     }
 
-    public void doCheckPhingHome(final StaplerRequest req,
-            final StaplerResponse res) throws IOException, ServletException {
+    public void doCheckPhingHome(final StaplerRequest req, final StaplerResponse res) throws IOException, ServletException {
         new FormFieldValidator(req, res, true) {
             @Override
             protected void check() throws IOException, ServletException {
@@ -84,8 +81,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
                     error(Messages.Phing_NotAPHPCommand(f));
                     return;
                 }
-                final File phing =
-                        new File(f, "bin" + File.separator + "phing.php");
+                final File phing = new File(f, "bin" + File.separator + "phing.php");
                 if (!phing.exists()) {
                     error(Messages.Phing_NotAPhingDirectory(f));
                     return;
@@ -95,8 +91,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
         }.process();
     }
 
-    public void doCheckPhpCommand(final StaplerRequest req,
-            final StaplerResponse res) throws IOException, ServletException {
+    public void doCheckPhpCommand(final StaplerRequest req, final StaplerResponse res) throws IOException, ServletException {
         new FormFieldValidator(req, res, true) {
             @Override
             protected void check() throws IOException, ServletException {

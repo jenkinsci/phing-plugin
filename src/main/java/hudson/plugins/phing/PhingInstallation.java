@@ -67,8 +67,7 @@ public final class PhingInstallation implements Serializable {
         this.phpCommand = Util.fixEmptyAndTrim(phpCommand);
     }
 
-    public String getExecutable(final Launcher launcher) throws IOException,
-            InterruptedException {
+    public String getExecutable(final Launcher launcher) throws IOException, InterruptedException {
         return launcher.getChannel().call(new Callable<String, IOException>() {
             private static final long serialVersionUID = 1L;
 
