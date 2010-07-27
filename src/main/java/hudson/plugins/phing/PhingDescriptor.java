@@ -8,7 +8,6 @@ import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 
 import net.sf.json.JSONObject;
@@ -39,13 +38,6 @@ public final class PhingDescriptor extends Descriptor<Builder> {
         installations = list.toArray(new PhingInstallation[list.size()]);
         save();
         return true;
-    }
-
-    @Override
-    public void convert(final Map<String, Object> oldPropertyBag) {
-        if (oldPropertyBag.containsKey("installations")) {
-            installations = (PhingInstallation[]) oldPropertyBag.get("installations");
-        }
     }
 
     @Override

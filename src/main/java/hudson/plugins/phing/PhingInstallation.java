@@ -68,11 +68,12 @@ public final class PhingInstallation implements Serializable {
     }
 
     public String getExecutable(final Launcher launcher) throws IOException, InterruptedException {
+        final String execName = getExecName(launcher);
         return launcher.getChannel().call(new Callable<String, IOException>() {
             private static final long serialVersionUID = 1L;
 
             public String call() throws IOException {
-                final File exe = getExeFile(launcher);
+                final File exe = new File(new File(getPhingHome(), "bin"), execName);
                 if (exe.exists()) {
                     return exe.getPath();
                 }
@@ -80,9 +81,4 @@ public final class PhingInstallation implements Serializable {
             }
         });
     }
-
-    private File getExeFile(final Launcher launcher) {
-        return new File(getPhingHome(), "bin" + File.separator + getExecName(launcher));
-    }
-
 }
