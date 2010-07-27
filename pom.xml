@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>phing</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
     <packaging>hpi</packaging>
     <name>Hudson Phing plugin</name>
     <description>This plugin allows you to use phing to build PHP projects.</description>
@@ -25,4 +25,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+  <scm>
+    <connection>scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/phing-0.5</connection>
+    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/phing-0.5</developerConnection>
+    <url>https://hudson.dev.java.net/source/browse/hudson/tags/phing-0.5</url>
+  </scm>
 </project>
