@@ -8,6 +8,7 @@ import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
+import hudson.plugins.phing.console.PhingConsoleAnnotator;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 
@@ -157,6 +158,8 @@ public final class PhingBuilder extends Builder {
         }
 
         if (!launcher.isUnix()) {
+            // TODO
+            // args = args.toWindowsCommand();
             args.add("&&", "exit", "%%ERRORLEVEL%%");
             args = new ArgumentListBuilder().add("cmd.exe", "/C").addQuoted(args.toStringWithQuote());
         }
@@ -170,7 +173,13 @@ public final class PhingBuilder extends Builder {
 
         final long startTime = System.currentTimeMillis();
         try {
-            final int result = launcher.launch().cmds(args).envs(env).stdout(listener).pwd(buildFilePath.getParent()).join();
+            PhingConsoleAnnotator pca = new PhingConsoleAnnotator(listener.getLogger(), build.getCharset());
+            int result;
+            try {
+               result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(buildFilePath.getParent()).join();
+            } finally {
+                pca.forceEol();
+            }
             return result == 0;
         } catch (final IOException e) {
             Util.displayIOException(e, listener);

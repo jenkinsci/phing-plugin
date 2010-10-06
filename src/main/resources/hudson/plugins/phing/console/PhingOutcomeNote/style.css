@@ -1,0 +1,8 @@
+.phing-outcome-failed {
+    font-weight: bold;
+    color: red;
+}
+
+.phing-outcome-finished {
+    color: #204A87;
+}
