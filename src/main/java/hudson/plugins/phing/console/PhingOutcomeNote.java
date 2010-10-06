@@ -14,6 +14,10 @@ public class PhingOutcomeNote extends ConsoleNote {
 
     @Override
     public ConsoleAnnotator<?> annotate(Object context, MarkupText text, int charpos) {
+        if(!ENABLED) {
+            return null;
+        }
+        
         if (text.getText().contains("FAILED")) {
             text.addMarkup(0, text.length(), "<span class='phing-outcome-failed'>", "</span>");
             return null;

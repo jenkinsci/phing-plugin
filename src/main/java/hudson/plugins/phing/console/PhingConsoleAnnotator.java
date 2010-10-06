@@ -19,6 +19,7 @@ public class PhingConsoleAnnotator extends LineTransformationOutputStream {
     private boolean seenEmptyLine;
 
     public PhingConsoleAnnotator(OutputStream out, Charset charset) {
+        super();
         this.out = out;
         this.charset = charset;
     }

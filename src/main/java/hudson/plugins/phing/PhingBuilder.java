@@ -78,6 +78,7 @@ public final class PhingBuilder extends Builder {
 
     @DataBoundConstructor
     public PhingBuilder(final String name, final String buildFile, final String targets, final String properties) {
+        super();
         this.name = Util.fixEmptyAndTrim(name);
         this.buildFile = Util.fixEmptyAndTrim(buildFile);
         this.targets = Util.fixEmptyAndTrim(targets);

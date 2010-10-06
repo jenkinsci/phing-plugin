@@ -7,6 +7,7 @@ import hudson.tasks.Builder;
 
 import hudson.util.FormValidation;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -23,8 +24,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public final class PhingDescriptor extends Descriptor<Builder> {
 
     @CopyOnWrite
-    private volatile PhingInstallation[] installations =
-            new PhingInstallation[0];
+    private volatile PhingInstallation[] installations = new PhingInstallation[0];
 
     public PhingDescriptor() {
         super(PhingBuilder.class);
@@ -51,7 +51,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
     }
 
     public PhingInstallation[] getInstallations() {
-        return installations;
+        return Arrays.copyOf(installations, installations.length);
     }
 
     @Override
