@@ -35,12 +35,12 @@ public class PhingConsoleAnnotator extends LineTransformationOutputStream {
             new PhingTargetNote().encodeTo(out);
         }
 
-        if (line.startsWith("Fatal error: ") || line.startsWith("Warning error: ") ||
-                line.startsWith("Parse error: ") || line.startsWith("Notice: ")) {
+        if (line.startsWith("Fatal error: ") || line.startsWith("Warning error: ") 
+                || line.startsWith("Parse error: ") || line.startsWith("Notice: ")) {
             new PhingPHPErrorNote().encodeTo(out);
         }
         
-        if (line.startsWith(("BUILD FINISHED")) || line.startsWith("BUILD FAILED")) {
+        if (line.startsWith("BUILD FINISHED") || line.startsWith("BUILD FAILED")) {
             new PhingOutcomeNote().encodeTo(out);
         }
 

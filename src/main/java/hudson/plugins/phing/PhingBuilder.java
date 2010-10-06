@@ -128,7 +128,11 @@ public final class PhingBuilder extends Builder {
             buildFilePath = build.getModuleRoot().child("build.xml");
         } else {
             final boolean absolute = new File(buildFile).isAbsolute();
-            buildFilePath = (absolute) ? new FilePath(new File(buildFile)) : build.getModuleRoot().child(buildFile);
+            if (absolute) {
+                buildFilePath = new FilePath(new File(buildFile));
+            } else {
+                buildFilePath = build.getModuleRoot().child(buildFile);
+            }
             args.add("-buildfile", buildFilePath.getName());
         }
 

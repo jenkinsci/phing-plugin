@@ -16,10 +16,6 @@ public class PhingTargetNote extends ConsoleNote {
 
     private static final Pattern PATTERN = Pattern.compile(".*(?=:)");
     
-    public PhingTargetNote() {
-        //
-    }
-
     @Override
     public ConsoleAnnotator<?> annotate(Object context, MarkupText text, int charPos) {
         if (!ENABLED) {
@@ -41,5 +37,5 @@ public class PhingTargetNote extends ConsoleNote {
         }
     }
 
-    public static boolean ENABLED = !Boolean.getBoolean(PhingTargetNote.class.getName()+".disabled");
+    private static final boolean ENABLED = !Boolean.getBoolean(PhingTargetNote.class.getName() + ".disabled");
 }

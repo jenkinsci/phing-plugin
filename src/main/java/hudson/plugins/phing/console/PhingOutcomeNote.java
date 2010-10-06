@@ -12,10 +12,6 @@ import hudson.console.ConsoleNote;
  */
 public class PhingOutcomeNote extends ConsoleNote {
 
-    public PhingOutcomeNote() {
-        //
-    }
-
     @Override
     public ConsoleAnnotator<?> annotate(Object context, MarkupText text, int charpos) {
         if (text.getText().contains("FAILED")) {
@@ -36,5 +32,5 @@ public class PhingOutcomeNote extends ConsoleNote {
         }
     }
 
-    public static boolean ENABLED = !Boolean.getBoolean(PhingOutcomeNote.class.getName() + ".disabled");
+    private static final boolean ENABLED = !Boolean.getBoolean(PhingOutcomeNote.class.getName() + ".disabled");
 }

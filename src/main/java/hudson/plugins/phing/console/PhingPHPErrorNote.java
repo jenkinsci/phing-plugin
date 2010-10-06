@@ -13,10 +13,6 @@ import hudson.console.ConsoleNote;
 public class PhingPHPErrorNote extends ConsoleNote {
 
 
-    public PhingPHPErrorNote() {
-        //
-    }
-
     @Override
     public ConsoleAnnotator<?> annotate(Object context, MarkupText text, int charPos) {
         if (!ENABLED) {
@@ -54,5 +50,5 @@ public class PhingPHPErrorNote extends ConsoleNote {
         }
     }
 
-    public static boolean ENABLED = !Boolean.getBoolean(PhingPHPErrorNote.class.getName() + ".disabled");
+    private static final boolean ENABLED = !Boolean.getBoolean(PhingPHPErrorNote.class.getName() + ".disabled");
 }
