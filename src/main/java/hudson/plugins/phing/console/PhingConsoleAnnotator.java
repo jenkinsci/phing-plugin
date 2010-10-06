@@ -32,7 +32,7 @@ public class PhingConsoleAnnotator extends LineTransformationOutputStream {
         // trim off CR/LF from the end
         line = trimEOL(line);
 
-        if (seenEmptyLine && endsWith(line, ':') && line.indexOf('>') > 0) {
+        if (seenEmptyLine && line.endsWith(":") && line.indexOf('>') > 0) {
             new PhingTargetNote().encodeTo(out);
         }
 
@@ -45,14 +45,8 @@ public class PhingConsoleAnnotator extends LineTransformationOutputStream {
             new PhingOutcomeNote().encodeTo(out);
         }
 
-
         seenEmptyLine = line.length() == 0;
         out.write(b, 0, len);
-    }
-
-    private boolean endsWith(String line, char c) {
-        int len = line.length();
-        return len > 0 && line.charAt(len - 1) == c;
     }
 
     @Override

@@ -14,7 +14,7 @@ public class PhingOutcomeNote extends ConsoleNote {
 
     @Override
     public ConsoleAnnotator<?> annotate(Object context, MarkupText text, int charpos) {
-        if(!ENABLED) {
+        if (!ENABLED) {
             return null;
         }
         
