@@ -8,12 +8,11 @@ import hudson.console.ConsoleNote;
 import java.util.regex.Pattern;
 
 /**
- *   Marks the log line "TARGET:" that Phing uses to mark the beginning of the new target.
+ * Marks the log line "TARGET:" that Phing uses to mark the beginning of the new target.
  *
  * @author Seiji Sogabe
  */
 public class PhingTargetNote extends ConsoleNote {
-
 
     private static final Pattern PATTERN = Pattern.compile(".*(?=:)");
     
