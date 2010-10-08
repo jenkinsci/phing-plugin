@@ -2,6 +2,7 @@ package hudson.plugins.phing;
 
 import hudson.CopyOnWrite;
 import hudson.model.Descriptor;
+import hudson.model.Descriptor.FormException;
 import hudson.model.Hudson;
 import hudson.tasks.Builder;
 

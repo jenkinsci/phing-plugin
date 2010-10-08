@@ -4,10 +4,7 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import java.io.IOException;
 import junit.framework.Assert;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -19,24 +16,9 @@ public class PhingTargetNoteTest {
 
     private PhingTargetNote target;
 
-    public PhingTargetNoteTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @Before
     public void setUp() {
         target = new PhingTargetNote();
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**

@@ -3,10 +3,7 @@ package hudson.plugins.phing.console;
 import hudson.MarkupText;
 import hudson.console.ConsoleAnnotator;
 import junit.framework.Assert;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -18,24 +15,9 @@ public class PhingOutcomeNoteTest {
 
     private PhingOutcomeNote target;
     
-    public PhingOutcomeNoteTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @Before
     public void setUp() {
         target = new PhingOutcomeNote();
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**
