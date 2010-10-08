@@ -7,6 +7,7 @@ import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 
 /**
+ * Annotates the PHP error line of the Phing execution.
  *
  * @author Seiji Sogabe
  */

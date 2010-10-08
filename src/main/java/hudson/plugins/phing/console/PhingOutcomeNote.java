@@ -7,8 +7,9 @@ import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 
 /**
+ * Annotates the BUILD SUCCESSFUL/FAILED line of the Phing execution.
  *
- * @author SAeiji Sogabe
+ * @author Seiji Sogabe
  */
 public class PhingOutcomeNote extends ConsoleNote {
 
@@ -24,7 +25,9 @@ public class PhingOutcomeNote extends ConsoleNote {
         }
         if (text.getText().contains("FINISHED")) {
             text.addMarkup(0, text.length(), "<span class='phing-outcome-finished'>", "</span>");
+            return null;
         }
+        
         return null;
     }
 

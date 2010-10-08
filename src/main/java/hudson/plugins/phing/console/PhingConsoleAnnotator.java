@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
+ * Filter {@link OutputStream} that places an annotation that marks Phing target execution.
  *
  * @author Seiji Sogabe
  */
@@ -41,7 +42,7 @@ public class PhingConsoleAnnotator extends LineTransformationOutputStream {
             new PhingPHPErrorNote().encodeTo(out);
         }
         
-        if (line.startsWith("BUILD FINISHED") || line.startsWith("BUILD FAILED")) {
+        if (seenEmptyLine && (line.startsWith("BUILD FINISHED") || line.startsWith("BUILD FAILED"))) {
             new PhingOutcomeNote().encodeTo(out);
         }
 
