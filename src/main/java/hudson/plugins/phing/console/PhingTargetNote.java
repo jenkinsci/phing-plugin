@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 public class PhingTargetNote extends ConsoleNote {
 
-    private static final Pattern PATTERN = Pattern.compile(".*(?=:)");
+    private static final Pattern PATTERN = Pattern.compile("(?<=\\>\\s).*(?=:)");
     
     @Override
     public ConsoleAnnotator<?> annotate(Object context, MarkupText text, int charPos) {

@@ -32,7 +32,7 @@ public class PhingTargetNoteTest {
         ConsoleAnnotator<?> ca = target.annotate(context, text, 0);
 
         Assert.assertNull(ca);
-        Assert.assertEquals("<span class='phing-target'>phing > build</span>:", text.toString(true));
+        Assert.assertEquals("phing > <span class='phing-target'>build</span>:", text.toString(true));
     }
 
     /**
