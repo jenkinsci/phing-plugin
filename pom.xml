@@ -28,6 +28,13 @@
         <jdk.version>1.5</jdk.version>
     </properties>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>bacons.ddo.jp</id>
+            <url>http://bacons.ddo.jp/maven2/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <plugins>
             <plugin>
