@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>phing</artifactId>
-    <version>0.6.1</version>
+    <version>0.6.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Hudson Phing plugin</name>
     <description>This plugin allows you to use phing to build PHP projects.</description>
@@ -102,10 +102,4 @@
             </plugin>
         </plugins>
     </reporting>
-
-  <scm>
-    <connection>scm:svn:https://guest@svn.java.net/svn/hudson~svn/tags/phing-0.6.1</connection>
-    <developerConnection>scm:svn:https://svn.java.net/svn/hudson~svn/tags/phing-0.6.1</developerConnection>
-    <url>https://svn.java.net/svn/hudson~svn/tags/phing-0.6.1</url>
-  </scm>
 </project>
