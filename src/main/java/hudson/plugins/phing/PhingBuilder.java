@@ -154,7 +154,7 @@ public final class PhingBuilder extends Builder {
         args.addKeyValuePairs("-D", build.getBuildVariables());
 
         // avoid printing esc sequence
-        args.add("-logger", "phing.listener.NoBannerLogger");
+        args.add("-logger", "phing.listener.DefaultLogger");
 
         // Environment variables
         if (pi != null && pi.getPhingHome() != null) {
