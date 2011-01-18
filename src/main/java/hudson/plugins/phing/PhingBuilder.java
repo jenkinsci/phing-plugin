@@ -163,10 +163,7 @@ public final class PhingBuilder extends Builder {
         }
 
         if (!launcher.isUnix()) {
-            // TODO
-            // args = args.toWindowsCommand();
-            args.add("&&", "exit", "%%ERRORLEVEL%%");
-            args = new ArgumentListBuilder().add("cmd.exe", "/C").addQuoted(args.toStringWithQuote());
+            args = args.toWindowsCommand();
         }
 
         if (DEBUG) {
