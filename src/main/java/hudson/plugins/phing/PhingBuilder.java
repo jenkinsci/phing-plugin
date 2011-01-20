@@ -11,15 +11,13 @@ import hudson.model.Descriptor;
 import hudson.plugins.phing.console.PhingConsoleAnnotator;
 import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
+import hudson.util.VariableResolver;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.StringReader;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -32,11 +30,6 @@ public final class PhingBuilder extends Builder {
 
     @Extension
     public static final PhingDescriptor DESCRIPTOR = new PhingDescriptor();
-
-    /**
-     * Set to true for debugging.
-     */
-    private static final boolean DEBUG = false;
 
     /**
      * Optional build script.
@@ -100,14 +93,13 @@ public final class PhingBuilder extends Builder {
     }
 
     @Override
-    public boolean perform(final AbstractBuild<?, ?> build, final Launcher launcher, final BuildListener listener)
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
 
         ArgumentListBuilder args = new ArgumentListBuilder();
         final EnvVars env = build.getEnvironment(listener);
 
         final PhingInstallation pi = getPhing();
-
         // PHP Command
         if (pi != null) {
             final String phpCommand = pi.getPhpCommand();
@@ -115,7 +107,6 @@ public final class PhingBuilder extends Builder {
                 env.put("PHP_COMMAND", phpCommand);
             }
         }
-
         // Phing Command
         if (pi == null) {
             args.add(PhingInstallation.getExecName(launcher));
@@ -123,35 +114,26 @@ public final class PhingBuilder extends Builder {
             args.add(pi.getExecutable(launcher));
         }
 
-        // Build script
-        FilePath buildFilePath;
-        if (buildFile == null) {
-            buildFilePath = build.getModuleRoot().child("build.xml");
-        } else {
-            final boolean absolute = new File(buildFile).isAbsolute();
-            if (absolute) {
-                buildFilePath = new FilePath(new File(buildFile));
-            } else {
-                buildFilePath = build.getModuleRoot().child(buildFile);
-            }
-            args.add("-buildfile", buildFilePath.getName());
+        VariableResolver<String> vr = build.getBuildVariableResolver();
+
+        String script = (buildFile == null) ? "build.xml" : buildFile;
+        FilePath buildScript = lookingForBuildScript(build, env.expand(script), listener);
+        if (buildScript == null) {
+            listener.getLogger().println(Messages.Phing_NotFoundABuildScript(script));
+            return false;
         }
+
+        args.add("-buildfile", buildScript.getName());
 
         // Targets
-        if (targets != null) {
-            final String normalizedTargets = targets.replaceAll("[\t\r\n]+", " ");
-            args.addTokenized(normalizedTargets);
+        String expandedTargets = Util.replaceMacro(env.expand(targets), vr);
+        if (expandedTargets != null) {
+            args.addTokenized(expandedTargets.replaceAll("[\t\r\n]+", " "));
         }
 
-        // Properties
-        if (properties != null) {
-            final Properties props = loadProperties();
-            for (final Entry<Object, Object> entry : props.entrySet()) {
-                args.add("-D" + entry.getKey() + "=" + entry.getValue());
-            }
-        }
-
-        args.addKeyValuePairs("-D", build.getBuildVariables());
+        Set<String> sensitiveVars = build.getSensitiveBuildVariables();
+        args.addKeyValuePairs("-D", build.getBuildVariables(), sensitiveVars);
+        args.addKeyValuePairsFromPropertyString("-D", properties, vr, sensitiveVars);
 
         // avoid printing esc sequence
         args.add("-logger", "phing.listener.DefaultLogger");
@@ -166,19 +148,12 @@ public final class PhingBuilder extends Builder {
             args = args.toWindowsCommand();
         }
 
-        if (DEBUG) {
-            final PrintStream logger = listener.getLogger();
-            for (final Map.Entry<String, String> entry : env.entrySet()) {
-                logger.println("(DEBUG) env: key= " + entry.getKey() + " value= " + entry.getValue());
-            }
-        }
-
         final long startTime = System.currentTimeMillis();
         try {
             PhingConsoleAnnotator pca = new PhingConsoleAnnotator(listener.getLogger(), build.getCharset());
             int result;
             try {
-               result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(buildFilePath.getParent()).join();
+               result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(buildScript.getParent()).join();
             } finally {
                 pca.forceEol();
             }
@@ -190,6 +165,33 @@ public final class PhingBuilder extends Builder {
             e.printStackTrace(listener.fatalError(errorMessage));
             return false;
         }
+    }
+
+    private FilePath lookingForBuildScript(AbstractBuild<?, ?> build, String script, BuildListener listener)
+            throws IOException, InterruptedException {
+
+        PrintStream logger = listener.getLogger();
+
+        FilePath buildScriptPath = build.getModuleRoot().child(script);
+        logger.println("looking for '" + buildScriptPath.getRemote() + "' ... ");
+        if (buildScriptPath.exists()) {
+            return buildScriptPath;
+        }
+
+        buildScriptPath = build.getWorkspace().child(script);
+        logger.println("looking for '" + buildScriptPath.getRemote() + "' ... ");
+        if (buildScriptPath.exists()) {
+            return buildScriptPath;
+        }
+
+        buildScriptPath = new FilePath(new File(script));
+        logger.println("looking for '" + buildScriptPath.getRemote() + "' ... ");
+        if (buildScriptPath.exists()) {
+            return buildScriptPath;
+        }
+
+        // build script not Found
+        return null;
     }
 
     private String buildErrorMessage(final PhingInstallation pi, final long processingTime) {
@@ -205,15 +207,4 @@ public final class PhingBuilder extends Builder {
         return msg.toString();
     }
 
-    private Properties loadProperties() throws IOException {
-        final Properties props = new Properties();
-        try {
-            // JavaSE 6.0
-            props.load(new StringReader(properties));
-        } catch (final NoSuchMethodError e) {
-            // J2SE 5.0
-            props.load(new ByteArrayInputStream(properties.getBytes()));
-        }
-        return props;
-    }
 }

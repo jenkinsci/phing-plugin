@@ -1,1 +1,3 @@
 This plugin allows you to use Phing to build PHP Project. 
+
+See http://wiki.hudson-ci.org/display/HUDSON/Phing+Plugin
