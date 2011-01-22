@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>phing</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.7</version>
     <packaging>hpi</packaging>
     <name>Hudson Phing plugin</name>
     <description>This plugin allows you to use phing to build PHP projects.</description>
