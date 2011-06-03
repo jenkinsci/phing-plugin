@@ -2,7 +2,7 @@
 
     <f:section title="Phing" >
         <f:entry title="${%Phing installation}"
-            description="${%List of Phing installations on this system}">
+            description="${%description}">
             <f:repeatable name="phing" var="inst" items="${descriptor.installations}">
                 <table width="100%">
 
