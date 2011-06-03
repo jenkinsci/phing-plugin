@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>phing</artifactId>
-    <version>0.8</version>
+    <version>0.9-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Jenkins Phing plugin</name>
     <description>This plugin allows you to use phing to build PHP projects.</description>
