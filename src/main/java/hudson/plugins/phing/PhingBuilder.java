@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2008-2011, Jenkins project, Seiji Sogabe
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -76,6 +76,12 @@ public final class PhingBuilder extends Builder {
      */
     private final String properties;
 
+    /**
+     * Whether uses ModuleRoot as working directory or not.
+     * @since 0.9
+     */
+    private final boolean useModuleRoot;
+
     public String getBuildFile() {
         return buildFile;
     }
@@ -92,13 +98,18 @@ public final class PhingBuilder extends Builder {
         return properties;
     }
 
+    public boolean isUseModuleRoot() {
+        return useModuleRoot;
+    }
+
     @DataBoundConstructor
-    public PhingBuilder(final String name, final String buildFile, final String targets, final String properties) {
+    public PhingBuilder(String name, String buildFile, String targets, String properties, boolean useModuleRoot) {
         super();
         this.name = Util.fixEmptyAndTrim(name);
         this.buildFile = Util.fixEmptyAndTrim(buildFile);
         this.targets = Util.fixEmptyAndTrim(targets);
         this.properties = Util.fixEmptyAndTrim(properties);
+        this.useModuleRoot = useModuleRoot;
     }
 
     public PhingInstallation getPhing() {
@@ -171,12 +182,16 @@ public final class PhingBuilder extends Builder {
             args = args.toWindowsCommand();
         }
 
+        // Working Directory
+        // since 0.9
+        FilePath working = useModuleRoot ? build.getModuleRoot() : buildScript.getParent();
+
         final long startTime = System.currentTimeMillis();
         try {
             PhingConsoleAnnotator pca = new PhingConsoleAnnotator(listener.getLogger(), build.getCharset());
             int result;
             try {
-               result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(buildScript.getParent()).join();
+               result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(working).join();
             } finally {
                 pca.forceEol();
             }
