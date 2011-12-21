@@ -22,8 +22,8 @@
         <f:entry title="${%Properties}" help="${rootURL}/../plugin/phing/help-properties.html">
             <f:textarea name="phingBuilder.properties" value="${instance.properties}"/>
         </f:entry>
-        <f:entry title="${%Use ModuleRoot as working directory}">
-            <f:checkbox name="phingBuilder.useModuleRoot" value="${instance.useModuleRoot}" />
+        <f:entry title="">
+            <f:checkbox name="phingBuilder.useModuleRoot" value="${instance.useModuleRoot}" />${%Use ModuleRoot as working directory}
         </f:entry>
     </f:advanced>
 
