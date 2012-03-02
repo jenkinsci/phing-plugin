@@ -23,7 +23,10 @@
             <f:textarea name="phingBuilder.properties" value="${instance.properties}"/>
         </f:entry>
         <f:entry title="">
-            <f:checkbox name="phingBuilder.useModuleRoot" value="${instance.useModuleRoot}" />${%Use ModuleRoot as working directory}
+            <label>
+              <f:checkbox name="phingBuilder.useModuleRoot" checked="${instance.useModuleRoot}" />
+              ${%Use ModuleRoot as working directory}
+            </label>
         </f:entry>
     </f:advanced>
 
