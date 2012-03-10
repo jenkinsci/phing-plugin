@@ -24,7 +24,7 @@
         </f:entry>
         <f:entry title="">
             <label>
-              <f:checkbox name="phingBuilder.useModuleRoot" checked="${instance.useModuleRoot}" />
+              <f:checkbox name="phingBuilder.useModuleRoot" default="true" checked="${instance.useModuleRoot}" />
               ${%Use ModuleRoot as working directory}
             </label>
         </f:entry>

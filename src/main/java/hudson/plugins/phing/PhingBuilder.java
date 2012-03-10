@@ -157,7 +157,7 @@ public final class PhingBuilder extends Builder {
             return false;
         }
 
-        args.add("-buildfile", buildScript.getName());
+        args.add("-buildfile", buildScript.getRemote());
 
         // Targets
         String expandedTargets = Util.replaceMacro(env.expand(targets), vr);
@@ -185,7 +185,8 @@ public final class PhingBuilder extends Builder {
         // Working Directory
         // since 0.9
         FilePath working = useModuleRoot ? build.getModuleRoot() : buildScript.getParent();
-
+        listener.getLogger().println(Messages.Phing_WorkingDirectory(working));
+        
         final long startTime = System.currentTimeMillis();
         try {
             PhingConsoleAnnotator pca = new PhingConsoleAnnotator(listener.getLogger(), build.getCharset());
