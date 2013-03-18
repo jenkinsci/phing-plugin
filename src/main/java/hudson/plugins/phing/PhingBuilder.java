@@ -179,7 +179,7 @@ public final class PhingBuilder extends Builder {
 
         Set<String> sensitiveVars = build.getSensitiveBuildVariables();
         args.addKeyValuePairs("-D", build.getBuildVariables(), sensitiveVars);
-        args.addKeyValuePairsFromPropertyString("-D", properties, vr, sensitiveVars);
+        args.addKeyValuePairsFromPropertyString("-D", env.expand(properties), vr, sensitiveVars);
 
         String expandedOptions = Util.replaceMacro(env.expand(options), vr);
         if (expandedOptions == null || !expandedOptions.contains("-logger ")) {
