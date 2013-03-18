@@ -81,6 +81,12 @@ public final class PhingBuilder extends Builder {
      * @since 0.9
      */
     private final boolean useModuleRoot;
+    
+    /**
+     * Additional options to be passed to Phing.
+     * @since 0.12
+     */
+    private final String options;
 
     public String getBuildFile() {
         return buildFile;
@@ -102,14 +108,20 @@ public final class PhingBuilder extends Builder {
         return useModuleRoot;
     }
 
+    public String getOptions() {
+        return options;
+    }
+
     @DataBoundConstructor
-    public PhingBuilder(String name, String buildFile, String targets, String properties, boolean useModuleRoot) {
+    public PhingBuilder(String name, String buildFile, String targets, String properties, 
+            boolean useModuleRoot, String options) {
         super();
         this.name = Util.fixEmptyAndTrim(name);
         this.buildFile = Util.fixEmptyAndTrim(buildFile);
         this.targets = Util.fixEmptyAndTrim(targets);
         this.properties = Util.fixEmptyAndTrim(properties);
         this.useModuleRoot = useModuleRoot;
+        this.options = Util.fixEmptyAndTrim(options);
     }
 
     public PhingInstallation getPhing() {
@@ -169,8 +181,14 @@ public final class PhingBuilder extends Builder {
         args.addKeyValuePairs("-D", build.getBuildVariables(), sensitiveVars);
         args.addKeyValuePairsFromPropertyString("-D", properties, vr, sensitiveVars);
 
-        // avoid printing esc sequence
-        args.add("-logger", "phing.listener.DefaultLogger");
+        String expandedOptions = Util.replaceMacro(env.expand(options), vr);
+        if (expandedOptions == null || !expandedOptions.contains("-logger ")) {
+            // avoid printing esc sequence
+            args.add("-logger", "phing.listener.DefaultLogger");
+        } 
+        if (expandedOptions != null) {
+            args.addTokenized(expandedOptions.replaceAll("[\t\r\n]", " "));
+        }
 
         // Environment variables
         if (pi != null && pi.getPhingHome() != null) {

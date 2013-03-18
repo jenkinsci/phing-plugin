@@ -55,7 +55,7 @@ public class PhingBuilderConfigSubmitTest extends HudsonTestCase {
 
     public void testConfigsubmit() throws Exception {
         FreeStyleProject p = createFreeStyleProject();
-        PhingBuilder builder = new PhingBuilder("Default", "build.xml", "install", null, true);
+        PhingBuilder builder = new PhingBuilder("Default", "build.xml", "install", null, true, null);
         p.getBuildersList().add(builder);
 
         HtmlForm form = webClient.goTo(p.getUrl() + "/configure").getFormByName("config");
