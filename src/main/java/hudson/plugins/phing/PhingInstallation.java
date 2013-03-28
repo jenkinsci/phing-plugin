@@ -23,13 +23,24 @@
  */
 package hudson.plugins.phing;
 
+import hudson.EnvVars;
+import hudson.Extension;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.model.EnvironmentSpecific;
+import hudson.model.Node;
+import hudson.model.TaskListener;
 import hudson.remoting.Callable;
+import hudson.slaves.NodeSpecific;
+import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolInstallation;
+import hudson.tools.ToolProperty;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
+import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -38,7 +49,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
  *
  * @author Seiji Sogabe
  */
-public final class PhingInstallation implements Serializable {
+public final class PhingInstallation extends ToolInstallation 
+    implements EnvironmentSpecific<PhingInstallation>, NodeSpecific<PhingInstallation>, Serializable {
 
     private static final String PHING_EXEC_NAME_FOR_UNIX = "phing";
 
@@ -71,10 +83,12 @@ public final class PhingInstallation implements Serializable {
         return execName;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public String getHome() {
+        return phingHome;
     }
 
+    @Deprecated
     public String getPhingHome() {
         return phingHome;
     }
@@ -84,7 +98,8 @@ public final class PhingInstallation implements Serializable {
     }
 
     @DataBoundConstructor
-    public PhingInstallation(final String phpCommand, final String name, final String phingHome) {
+    public PhingInstallation(final String phpCommand, final String name, final String phingHome, List<? extends ToolProperty<?>> properties) {
+        super(name, phingHome);
         this.name = Util.fixEmptyAndTrim(name);
         this.phingHome = Util.fixEmptyAndTrim(phingHome);
         this.phpCommand = Util.fixEmptyAndTrim(phpCommand);
@@ -103,5 +118,36 @@ public final class PhingInstallation implements Serializable {
                 return null;
             }
         });
+    }
+
+    @Override
+    public PhingInstallation forEnvironment(EnvVars ev) {
+        return new PhingInstallation(null, getName(), ev.expand(phingHome), getProperties().toList());
+    }
+
+    public PhingInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
+          return new PhingInstallation(null, getName(), translateFor(node, log), getProperties().toList());
+    }
+
+    @Override
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
+    }
+ 
+    @Extension
+    public static class DescriptorImpl extends ToolDescriptor<PhingInstallation> {
+
+        public DescriptorImpl() {
+            super();
+            load();
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Phing";
+        }
+        
+        
+        
     }
 }
