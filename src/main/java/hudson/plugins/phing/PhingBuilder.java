@@ -30,6 +30,7 @@ import hudson.Launcher;
 import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
+import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.plugins.phing.console.PhingConsoleAnnotator;
 import hudson.tasks.Builder;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
 import java.util.Set;
+import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -125,7 +127,9 @@ public final class PhingBuilder extends Builder {
     }
 
     public PhingInstallation getPhing() {
-        for (final PhingInstallation inst : DESCRIPTOR.getInstallations()) {
+        PhingInstallation.DescriptorImpl desc 
+                = (PhingInstallation.DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
+        for (final PhingInstallation inst : desc.getInstallations()) {
             if (name != null && name.equals(inst.getName())) {
                 return inst;
             }
@@ -145,10 +149,12 @@ public final class PhingBuilder extends Builder {
         ArgumentListBuilder args = new ArgumentListBuilder();
         final EnvVars env = build.getEnvironment(listener);
 
-        final PhingInstallation pi = getPhing();
+        PhingInstallation pi = getPhing();
         // PHP Command
         if (pi != null) {
-            final String phpCommand = pi.getPhpCommand();
+            pi = pi.forNode(Computer.currentComputer().getNode(), listener);
+            pi = pi.forEnvironment(env);
+            String phpCommand = pi.getPhpCommand();
             if (phpCommand != null) {
                 env.put("PHP_COMMAND", phpCommand);
             }
@@ -191,9 +197,9 @@ public final class PhingBuilder extends Builder {
         }
 
         // Environment variables
-        if (pi != null && pi.getPhingHome() != null) {
-            env.put("PHING_HOME", pi.getPhingHome());
-            env.put("PHING_CLASSPATH", pi.getPhingHome() + File.separator + "classes");
+        if (pi != null && pi.getHome() != null) {
+            env.put("PHING_HOME", pi.getHome());
+            env.put("PHING_CLASSPATH", pi.getHome() + File.separator + "classes");
         }
 
         if (!launcher.isUnix()) {

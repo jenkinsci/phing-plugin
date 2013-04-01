@@ -1,6 +1,5 @@
 package hudson.plugins.phing;
 
-import hudson.Extension;
 import hudson.tools.DownloadFromUrlInstaller;
 import hudson.tools.ToolInstallation;
 import org.kohsuke.stapler.DataBoundConstructor;

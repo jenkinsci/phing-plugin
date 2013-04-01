@@ -27,30 +27,39 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.init.InitMilestone;
+import hudson.init.Initializer;
 import hudson.model.EnvironmentSpecific;
+import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.tools.ToolInstaller;
 import hudson.tools.ToolProperty;
+import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Phing Installation.
  *
  * @author Seiji Sogabe
  */
-public final class PhingInstallation extends ToolInstallation 
-    implements EnvironmentSpecific<PhingInstallation>, NodeSpecific<PhingInstallation>, Serializable {
+public final class PhingInstallation extends ToolInstallation
+        implements EnvironmentSpecific<PhingInstallation>, NodeSpecific<PhingInstallation>, Serializable {
 
     private static final String PHING_EXEC_NAME_FOR_UNIX = "phing";
 
@@ -59,14 +68,10 @@ public final class PhingInstallation extends ToolInstallation
     private static final long serialVersionUID = 1L;
 
     /**
-     * Phing Installation name.
-     */
-    private final String name;
-
-    /**
      * PHING_HOME where phing has been installed.
      */
-    private final String phingHome;
+    @Deprecated
+    private transient String phingHome;
 
     /**
      * PHP command.
@@ -83,11 +88,6 @@ public final class PhingInstallation extends ToolInstallation
         return execName;
     }
 
-    @Override
-    public String getHome() {
-        return phingHome;
-    }
-
     @Deprecated
     public String getPhingHome() {
         return phingHome;
@@ -98,10 +98,8 @@ public final class PhingInstallation extends ToolInstallation
     }
 
     @DataBoundConstructor
-    public PhingInstallation(final String phpCommand, final String name, final String phingHome, List<? extends ToolProperty<?>> properties) {
-        super(name, phingHome);
-        this.name = Util.fixEmptyAndTrim(name);
-        this.phingHome = Util.fixEmptyAndTrim(phingHome);
+    public PhingInstallation(final String phpCommand, final String name, final String home, List<? extends ToolProperty<?>> properties) {
+        super(name, home, properties);
         this.phpCommand = Util.fixEmptyAndTrim(phpCommand);
     }
 
@@ -111,7 +109,7 @@ public final class PhingInstallation extends ToolInstallation
             private static final long serialVersionUID = 1L;
 
             public String call() throws IOException {
-                final File exe = new File(new File(getPhingHome(), "bin"), execName);
+                final File exe = new File(new File(getHome(), "bin"), execName);
                 if (exe.exists()) {
                     return exe.getPath();
                 }
@@ -122,18 +120,46 @@ public final class PhingInstallation extends ToolInstallation
 
     @Override
     public PhingInstallation forEnvironment(EnvVars ev) {
-        return new PhingInstallation(null, getName(), ev.expand(phingHome), getProperties().toList());
+        return new PhingInstallation(getPhpCommand(), getName(), ev.expand(getHome()), getProperties().toList());
     }
 
     public PhingInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
-          return new PhingInstallation(null, getName(), translateFor(node, log), getProperties().toList());
+        return new PhingInstallation(getPhpCommand(), getName(), translateFor(node, log), getProperties().toList());
     }
 
     @Override
     public DescriptorImpl getDescriptor() {
         return (DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
     }
- 
+
+    public static PhingInstallation[] getInstallations() {
+        return ((DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class)).getInstallations();
+    } 
+
+    @Initializer(after = InitMilestone.PLUGINS_STARTED)
+    public static void onLoaded() {
+        PhingInstallation[] installations = getInstallations();
+        if (installations != null && installations.length > 0) {
+            return;
+        }
+        
+        PhingDescriptor phingDescriptor = (PhingDescriptor) Jenkins.getInstance().getDescriptor(PhingBuilder.class);
+        PhingInstallation[] olds = phingDescriptor.getOldInstallations();
+        if (olds == null) {
+            return;
+        }
+        phingDescriptor.clearOldInstallations();        
+        
+        PhingInstallation[] news = new PhingInstallation[olds.length];
+        for (int i = 0; i < olds.length; i++) {
+            PhingInstallation old = olds[i];
+            news[i] = new PhingInstallation(old.getPhpCommand(), old.getName(), old.getPhingHome(), old.getProperties().toList());
+        }
+        DescriptorImpl descriptorImpl = (DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
+        descriptorImpl.setInstallations(news);
+        descriptorImpl.save();
+    }
+    
     @Extension
     public static class DescriptorImpl extends ToolDescriptor<PhingInstallation> {
 
@@ -146,8 +172,58 @@ public final class PhingInstallation extends ToolInstallation
         public String getDisplayName() {
             return "Phing";
         }
+
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+            super.configure(req, json);
+            save();
+            return true;
+        }
+
+        @Override
+        public List<? extends ToolInstaller> getDefaultInstallers() {
+             return Collections.emptyList();
+        }
         
-        
-        
+        public FormValidation doCheckHome(@QueryParameter File value) {
+            if (!Jenkins.getInstance().hasPermission(Hudson.ADMINISTER)) {
+                return FormValidation.ok();
+            }
+
+            if ("".equals(value.getPath().trim())) {
+                return FormValidation.ok();
+            }
+
+            if (!value.isDirectory()) {
+                return FormValidation.error(Messages.Phing_NotADirectory(value));
+            }
+
+            File phing = new File(value, "bin" + File.separator + "phing.php");
+            if (!phing.exists()) {
+                return FormValidation.error(Messages.Phing_NotAPhingDirectory(value));
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckPhpCommand(@QueryParameter File value) {
+            if (!Jenkins.getInstance().hasPermission(Hudson.ADMINISTER)) {
+                return FormValidation.ok();
+            }
+
+            if ("".equals(value.getPath().trim())) {
+                return FormValidation.ok();
+            }
+
+            if (!value.exists()) {
+                return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
+            }
+
+            if (value.isDirectory()) {
+                return FormValidation.error(Messages.Phing_DirectoryNotAllowed(value));
+            }
+
+            return FormValidation.ok();
+        }
     }
 }
