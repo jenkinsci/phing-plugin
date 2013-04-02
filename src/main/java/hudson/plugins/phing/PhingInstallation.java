@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2008-2011, Jenkins project, Seiji Sogabe
+ * Copyright (c) 2008-2013, Jenkins project, Seiji Sogabe
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -98,7 +98,7 @@ public final class PhingInstallation extends ToolInstallation
     }
 
     @DataBoundConstructor
-    public PhingInstallation(final String phpCommand, final String name, final String home, List<? extends ToolProperty<?>> properties) {
+    public PhingInstallation(String name, String home, String phpCommand, List<? extends ToolProperty<?>> properties) {
         super(name, home, properties);
         this.phpCommand = Util.fixEmptyAndTrim(phpCommand);
     }
@@ -120,11 +120,12 @@ public final class PhingInstallation extends ToolInstallation
 
     @Override
     public PhingInstallation forEnvironment(EnvVars ev) {
-        return new PhingInstallation(getPhpCommand(), getName(), ev.expand(getHome()), getProperties().toList());
+        return new PhingInstallation(getName(), ev.expand(getHome()), getPhpCommand(), getProperties().toList());
     }
 
+    @Override
     public PhingInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
-        return new PhingInstallation(getPhpCommand(), getName(), translateFor(node, log), getProperties().toList());
+        return new PhingInstallation(getName(), translateFor(node, log), getPhpCommand(), getProperties().toList());
     }
 
     @Override
@@ -136,6 +137,9 @@ public final class PhingInstallation extends ToolInstallation
         return ((DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class)).getInstallations();
     } 
 
+    /**
+     * Backward compatibility. 
+     */
     @Initializer(after = InitMilestone.PLUGINS_STARTED)
     public static void onLoaded() {
         PhingInstallation[] installations = getInstallations();
@@ -148,12 +152,12 @@ public final class PhingInstallation extends ToolInstallation
         if (olds == null) {
             return;
         }
-        phingDescriptor.clearOldInstallations();        
+        phingDescriptor.clearOldInstallationsAndSave();        
         
         PhingInstallation[] news = new PhingInstallation[olds.length];
         for (int i = 0; i < olds.length; i++) {
             PhingInstallation old = olds[i];
-            news[i] = new PhingInstallation(old.getPhpCommand(), old.getName(), old.getPhingHome(), old.getProperties().toList());
+            news[i] = new PhingInstallation(old.getName(), old.getPhingHome(), old.getPhpCommand(), old.getProperties().toList());
         }
         DescriptorImpl descriptorImpl = (DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
         descriptorImpl.setInstallations(news);

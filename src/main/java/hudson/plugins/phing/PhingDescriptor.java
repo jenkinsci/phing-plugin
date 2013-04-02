@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2008-2011, Jenkins project, Seiji Sogabe
+ * Copyright (c) 2008-2013, Jenkins project, Seiji Sogabe
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
         return installations;
     }
     
-    void clearOldInstallations() {
+    void clearOldInstallationsAndSave() {
         installations = null;
         save();
     }
