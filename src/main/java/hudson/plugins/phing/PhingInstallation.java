@@ -30,7 +30,6 @@ import hudson.Util;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import hudson.model.EnvironmentSpecific;
-import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
@@ -39,7 +38,6 @@ import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolProperty;
-import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +48,6 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -188,27 +185,5 @@ public final class PhingInstallation extends ToolInstallation
         public List<? extends ToolInstaller> getDefaultInstallers() {
              return Collections.emptyList();
         }
-        
-        public FormValidation doCheckHome(@QueryParameter File value) {
-            if (!Jenkins.getInstance().hasPermission(Hudson.ADMINISTER)) {
-                return FormValidation.ok();
-            }
-
-            if ("".equals(value.getPath().trim())) {
-                return FormValidation.ok();
-            }
-
-            if (!value.isDirectory()) {
-                return FormValidation.error(Messages.Phing_NotADirectory(value));
-            }
-
-            File phing = new File(value, "bin" + File.separator + "phing.php");
-            if (!phing.exists()) {
-                return FormValidation.error(Messages.Phing_NotAPhingDirectory(value));
-            }
-
-            return FormValidation.ok();
-        }
-
     }
 }

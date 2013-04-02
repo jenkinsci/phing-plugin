@@ -48,6 +48,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
         return installations;
     }
     
+    @Deprecated
     void clearOldInstallationsAndSave() {
         installations = null;
         save();
