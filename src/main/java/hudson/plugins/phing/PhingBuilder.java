@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2008-2011, Jenkins project, Seiji Sogabe
+ * Copyright (c) 2008-2013, Jenkins project, Seiji Sogabe
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -83,7 +83,7 @@ public final class PhingBuilder extends Builder {
      * @since 0.9
      */
     private final boolean useModuleRoot;
-    
+
     /**
      * Additional options to be passed to Phing.
      * @since 0.12
@@ -115,7 +115,7 @@ public final class PhingBuilder extends Builder {
     }
 
     @DataBoundConstructor
-    public PhingBuilder(String name, String buildFile, String targets, String properties, 
+    public PhingBuilder(String name, String buildFile, String targets, String properties,
             boolean useModuleRoot, String options) {
         super();
         this.name = Util.fixEmptyAndTrim(name);
@@ -126,15 +126,20 @@ public final class PhingBuilder extends Builder {
         this.options = Util.fixEmptyAndTrim(options);
     }
 
-    public PhingInstallation getPhing() {
-        PhingInstallation.DescriptorImpl desc 
-                = (PhingInstallation.DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
-        for (final PhingInstallation inst : desc.getInstallations()) {
+    public PhingInstallation getPhing(EnvVars env, BuildListener listener) 
+            throws IOException, InterruptedException {
+        PhingInstallation.DescriptorImpl desc = getPhingInstallationDescriptor();
+        for (PhingInstallation inst : desc.getInstallations()) {
             if (name != null && name.equals(inst.getName())) {
-                return inst;
+                PhingInstallation pi = inst.forNode(Computer.currentComputer().getNode(), listener);
+                return pi.forEnvironment(env);
             }
         }
         return null;
+    }
+
+    private PhingInstallation.DescriptorImpl getPhingInstallationDescriptor() {
+        return (PhingInstallation.DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
     }
 
     @Override
@@ -147,18 +152,18 @@ public final class PhingBuilder extends Builder {
             throws InterruptedException, IOException {
 
         ArgumentListBuilder args = new ArgumentListBuilder();
-        final EnvVars env = build.getEnvironment(listener);
+        EnvVars env = build.getEnvironment(listener);
 
-        PhingInstallation pi = getPhing();
+        PhingInstallation pi = getPhing(env, listener);
+        
         // PHP Command
         if (pi != null) {
-            pi = pi.forNode(Computer.currentComputer().getNode(), listener);
-            pi = pi.forEnvironment(env);
             String phpCommand = pi.getPhpCommand();
             if (phpCommand != null) {
                 env.put("PHP_COMMAND", phpCommand);
             }
         }
+        
         // Phing Command
         if (pi == null) {
             args.add(PhingInstallation.getExecName(launcher));
@@ -191,7 +196,7 @@ public final class PhingBuilder extends Builder {
         if (expandedOptions == null || !expandedOptions.contains("-logger ")) {
             // avoid printing esc sequence
             args.add("-logger", "phing.listener.DefaultLogger");
-        } 
+        }
         if (expandedOptions != null) {
             args.addTokenized(expandedOptions.replaceAll("[\t\r\n]", " "));
         }
@@ -210,13 +215,13 @@ public final class PhingBuilder extends Builder {
         // since 0.9
         FilePath working = useModuleRoot ? build.getModuleRoot() : buildScript.getParent();
         listener.getLogger().println(Messages.Phing_WorkingDirectory(working));
-        
+
         final long startTime = System.currentTimeMillis();
         try {
             PhingConsoleAnnotator pca = new PhingConsoleAnnotator(listener.getLogger(), build.getCharset());
             int result;
             try {
-               result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(working).join();
+                result = launcher.launch().cmds(args).envs(env).stdout(pca).pwd(working).join();
             } finally {
                 pca.forceEol();
             }
@@ -241,10 +246,13 @@ public final class PhingBuilder extends Builder {
             return buildScriptPath;
         }
 
-        buildScriptPath = build.getWorkspace().child(script);
-        logger.println("looking for '" + buildScriptPath.getRemote() + "' ... ");
-        if (buildScriptPath.exists()) {
-            return buildScriptPath;
+        FilePath workspace = build.getWorkspace();
+        if (workspace != null) {
+            buildScriptPath = workspace.child(script);
+            logger.println("looking for '" + buildScriptPath.getRemote() + "' ... ");
+            if (buildScriptPath.exists()) {
+                return buildScriptPath;
+            }
         }
 
         buildScriptPath = new FilePath(new File(script));
@@ -261,7 +269,8 @@ public final class PhingBuilder extends Builder {
         final StringBuffer msg = new StringBuffer();
         msg.append(Messages.Phing_ExecFailed());
         if (pi == null && processingTime < 1000) {
-            if (DESCRIPTOR.getInstallations() == null) {
+            PhingInstallation[] installations = getPhingInstallationDescriptor().getInstallations();
+            if (installations.length == 0) {
                 msg.append(Messages.Phing_GlocalConfigNeeded());
             } else {
                 msg.append(Messages.Phing_ProjectConfigNeeded());
@@ -269,5 +278,4 @@ public final class PhingBuilder extends Builder {
         }
         return msg.toString();
     }
-
 }
