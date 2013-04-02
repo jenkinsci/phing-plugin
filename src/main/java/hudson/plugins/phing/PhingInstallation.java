@@ -210,24 +210,5 @@ public final class PhingInstallation extends ToolInstallation
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckPhpCommand(@QueryParameter File value) {
-            if (!Jenkins.getInstance().hasPermission(Hudson.ADMINISTER)) {
-                return FormValidation.ok();
-            }
-
-            if ("".equals(value.getPath().trim())) {
-                return FormValidation.ok();
-            }
-
-            if (!value.exists()) {
-                return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
-            }
-
-            if (value.isDirectory()) {
-                return FormValidation.error(Messages.Phing_DirectoryNotAllowed(value));
-            }
-
-            return FormValidation.ok();
-        }
     }
 }
