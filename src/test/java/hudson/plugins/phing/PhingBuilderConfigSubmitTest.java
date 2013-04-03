@@ -59,7 +59,7 @@ public class PhingBuilderConfigSubmitTest extends HudsonTestCase {
         p.getBuildersList().add(builder);
 
         HtmlForm form = webClient.goTo(p.getUrl() + "/configure").getFormByName("config");
-        HtmlCheckBoxInput useModuleRootCheckBox = form.getInputByName("phingBuilder.useModuleRoot");
+        HtmlCheckBoxInput useModuleRootCheckBox = form.getInputByName("_.useModuleRoot");
 
         assertTrue(useModuleRootCheckBox.isChecked());
 
