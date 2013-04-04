@@ -125,6 +125,18 @@ public final class PhingInstallation extends ToolInstallation
         return new PhingInstallation(getName(), translateFor(node, log), getPhpCommand(), getProperties().toList());
     }
 
+    public EnvVars getEnvVars() {
+        EnvVars env = new EnvVars();
+        if (phpCommand != null) {
+            env.put("PHP_COMMAND", phpCommand);
+        }
+        if (getHome() != null) {
+            env.put("PHING_HOME", getHome());
+            env.put("PHING_CLASSPATH", getHome() + File.separator + "classes");
+        }
+        return env;
+    }
+
     @Override
     public DescriptorImpl getDescriptor() {
         return (DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class);
@@ -132,7 +144,7 @@ public final class PhingInstallation extends ToolInstallation
 
     public static PhingInstallation[] getInstallations() {
         return ((DescriptorImpl) Jenkins.getInstance().getDescriptor(PhingInstallation.class)).getInstallations();
-    } 
+    }
 
     /**
      * Backward compatibility. 
@@ -143,14 +155,14 @@ public final class PhingInstallation extends ToolInstallation
         if (installations != null && installations.length > 0) {
             return;
         }
-        
+
         PhingDescriptor phingDescriptor = (PhingDescriptor) Jenkins.getInstance().getDescriptor(PhingBuilder.class);
         PhingInstallation[] olds = phingDescriptor.getOldInstallations();
         if (olds == null) {
             return;
         }
-        phingDescriptor.clearOldInstallationsAndSave();        
-        
+        phingDescriptor.clearOldInstallationsAndSave();
+
         PhingInstallation[] news = new PhingInstallation[olds.length];
         for (int i = 0; i < olds.length; i++) {
             PhingInstallation old = olds[i];
@@ -160,7 +172,7 @@ public final class PhingInstallation extends ToolInstallation
         descriptorImpl.setInstallations(news);
         descriptorImpl.save();
     }
-    
+
     @Extension
     public static class DescriptorImpl extends ToolDescriptor<PhingInstallation> {
 
@@ -183,7 +195,7 @@ public final class PhingInstallation extends ToolInstallation
 
         @Override
         public List<? extends ToolInstaller> getDefaultInstallers() {
-             return Collections.emptyList();
+            return Collections.emptyList();
         }
     }
 }

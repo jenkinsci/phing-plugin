@@ -156,42 +156,37 @@ public final class PhingBuilder extends Builder {
 
         PhingInstallation pi = getPhing(env, listener);
         
-        // PHP Command
         if (pi != null) {
-            String phpCommand = pi.getPhpCommand();
-            if (phpCommand != null) {
-                env.put("PHP_COMMAND", phpCommand);
-            }
+            env.overrideAll(pi.getEnvVars());
         }
-        
+
+        // PHP Command
+        args.add(computePhpCommand(pi, env));
         // Phing Command
-        if (pi == null) {
-            args.add(PhingInstallation.getExecName(launcher));
-        } else {
-            args.add(pi.getExecutable(launcher));
-        }
+        args.add(computePhingCommand(pi, launcher));
 
         VariableResolver<String> vr = build.getBuildVariableResolver();
 
+        // build.xml
         String script = (buildFile == null) ? "build.xml" : buildFile;
         FilePath buildScript = lookingForBuildScript(build, env.expand(script), listener);
         if (buildScript == null) {
             listener.getLogger().println(Messages.Phing_NotFoundABuildScript(script));
             return false;
         }
-
         args.add("-buildfile", buildScript.getRemote());
+
+        Set<String> sensitiveVars = build.getSensitiveBuildVariables();
+        args.addKeyValuePairs("-D", build.getBuildVariables(), sensitiveVars);
+        args.addKeyValuePairsFromPropertyString("-D", env.expand(properties), vr, sensitiveVars);
 
         // Targets
         String expandedTargets = Util.replaceMacro(env.expand(targets), vr);
         if (expandedTargets != null) {
             args.addTokenized(expandedTargets.replaceAll("[\t\r\n]+", " "));
         }
-
-        Set<String> sensitiveVars = build.getSensitiveBuildVariables();
-        args.addKeyValuePairs("-D", build.getBuildVariables(), sensitiveVars);
-        args.addKeyValuePairsFromPropertyString("-D", env.expand(properties), vr, sensitiveVars);
-
+        
+        // Options
         String expandedOptions = Util.replaceMacro(env.expand(options), vr);
         if (expandedOptions == null || !expandedOptions.contains("-logger ")) {
             // avoid printing esc sequence
@@ -199,12 +194,6 @@ public final class PhingBuilder extends Builder {
         }
         if (expandedOptions != null) {
             args.addTokenized(expandedOptions.replaceAll("[\t\r\n]", " "));
-        }
-
-        // Environment variables
-        if (pi != null && pi.getHome() != null) {
-            env.put("PHING_HOME", pi.getHome());
-            env.put("PHING_CLASSPATH", pi.getHome() + File.separator + "classes");
         }
 
         if (!launcher.isUnix()) {
@@ -233,6 +222,24 @@ public final class PhingBuilder extends Builder {
             e.printStackTrace(listener.fatalError(errorMessage));
             return false;
         }
+    }
+    
+    private String computePhpCommand(PhingInstallation pi, EnvVars env) {
+        String command = env.get("PHP_COMMAND");
+        if (command == null && pi != null) {
+            if (pi.getPhpCommand() != null) {
+                command = pi.getPhpCommand();
+            }
+        }
+        return env.expand(command);
+    }
+    
+    private String computePhingCommand(PhingInstallation pi, Launcher launcher) 
+            throws IOException, InterruptedException {
+        if (pi == null) {
+            return PhingInstallation.getExecName(launcher);
+        } 
+        return pi.getExecutable(launcher);
     }
 
     private FilePath lookingForBuildScript(AbstractBuild<?, ?> build, String script, BuildListener listener)
