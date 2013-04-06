@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2008-2011, Jenkins project, Seiji Sogabe
+ * Copyright (c) 2008-2013, Jenkins project, Seiji Sogabe
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,18 +26,10 @@ package hudson.plugins.phing;
 import hudson.CopyOnWrite;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
-import hudson.model.Hudson;
 import hudson.tasks.Builder;
-
-import hudson.util.FormValidation;
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
 
 import net.sf.json.JSONObject;
 
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -48,20 +40,23 @@ import org.kohsuke.stapler.StaplerRequest;
 public final class PhingDescriptor extends Descriptor<Builder> {
 
     @CopyOnWrite
+    @Deprecated
     private volatile PhingInstallation[] installations = new PhingInstallation[0];
 
+    @Deprecated
+    PhingInstallation[] getOldInstallations() {
+        return installations;
+    }
+    
+    @Deprecated
+    void clearOldInstallationsAndSave() {
+        installations = null;
+        save();
+    }
+    
     public PhingDescriptor() {
         super(PhingBuilder.class);
         load();
-    }
-
-    @Override
-    public boolean configure(final StaplerRequest req, final JSONObject formData) throws FormException {
-        final List<PhingInstallation> list = req.bindJSONToList(PhingInstallation.class,
-                formData.get("phing"));
-        installations = list.toArray(new PhingInstallation[list.size()]);
-        save();
-        return true;
     }
 
     @Override
@@ -75,7 +70,7 @@ public final class PhingDescriptor extends Descriptor<Builder> {
     }
 
     public PhingInstallation[] getInstallations() {
-        return Arrays.copyOf(installations, installations.length);
+        return PhingInstallation.getInstallations();
     }
 
     @Override
@@ -83,44 +78,4 @@ public final class PhingDescriptor extends Descriptor<Builder> {
         return req.bindJSON(PhingBuilder.class, formData);
     }
 
-    public FormValidation doCheckPhingHome(@QueryParameter File value) {
-        if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
-            return FormValidation.ok();
-        }
-
-        if ("".equals(value.getPath().trim())) {
-            return FormValidation.error(Messages.Phing_PhingHomeRequired());
-        }
-
-        if (!value.isDirectory()) {
-            return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
-        }
-
-        final File phing = new File(value, "bin" + File.separator + "phing.php");
-        if (!phing.exists()) {
-            return FormValidation.error(Messages.Phing_NotAPhingDirectory(value));
-        }
-
-        return FormValidation.ok();
-    }
-
-    public FormValidation doCheckPhpCommand(@QueryParameter File value) {
-        if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
-            return FormValidation.ok();
-        }
-        
-        if ("".equals(value.getPath().trim())) {
-            return FormValidation.ok();
-        }
-
-        if (!value.exists()) {
-            return FormValidation.error(Messages.Phing_NotAPHPCommand(value));
-        }
-
-        if (value.isDirectory()) {
-            return FormValidation.error(Messages.Phing_DirectoryNotAllowed(value));
-        }
-
-        return FormValidation.ok();
-    }
 }

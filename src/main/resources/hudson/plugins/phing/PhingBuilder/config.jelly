@@ -3,7 +3,7 @@
 
     <j:if test="${!empty(descriptor.installations)}">
         <f:entry title="${%Phing Version}">
-            <select class="setting-input" name="phingBuilder.name">
+            <select class="setting-input" name="name">
               <option>(${%Default})</option>
               <j:forEach var="inst" items="${descriptor.installations}">
                   <f:option selected="${inst.name==instance.name}">${inst.name}</f:option>
@@ -12,23 +12,23 @@
         </f:entry>
     </j:if>
 
-    <f:entry title="${%Targets}" help="${rootURL}/../plugin/phing/help-targets.html">
-        <f:expandableTextbox name="phingBuilder.targets" value="${instance.targets}" />
+    <f:entry title="${%Targets}" field="targets">
+        <f:expandableTextbox />
     </f:entry>
 
     <f:advanced>
-        <f:entry title="${%Phing Build File}" help="${rootURL}/../plugin/phing/help-buildfile.html">
-            <f:textbox name="phingBuilder.buildFile" value="${instance.buildFile}" />
+        <f:entry title="${%Phing Build File}" field="buildFile">
+            <f:textbox />
         </f:entry>
-        <f:entry title="${%Options}" >
-            <f:textarea name="phingBuilder.options" value="${instance.options}" />
+        <f:entry title="${%Options}" field="options">
+            <f:textarea />
         </f:entry>
-        <f:entry title="${%Properties}" help="${rootURL}/../plugin/phing/help-properties.html">
-            <f:expandableTextbox name="phingBuilder.properties" value="${instance.properties}"/>
+        <f:entry title="${%Properties}" field="properties">
+            <f:expandableTextbox />
         </f:entry>
-        <f:entry title="">
+        <f:entry title="" field="useModuleRoot">
             <label>
-              <f:checkbox name="phingBuilder.useModuleRoot" default="true" checked="${instance.useModuleRoot}" />
+              <f:checkbox default="true" />
               ${%Use ModuleRoot as working directory}
             </label>
         </f:entry>
