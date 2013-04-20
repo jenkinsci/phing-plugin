@@ -161,7 +161,9 @@ public final class PhingBuilder extends Builder {
         }
 
         // PHP Command
-        args.add(computePhpCommand(pi, env));
+        if (launcher.isUnix()) {
+            args.add(computePhpCommand(pi, env));
+        }
         // Phing Command
         args.add(computePhingCommand(pi, launcher));
 
