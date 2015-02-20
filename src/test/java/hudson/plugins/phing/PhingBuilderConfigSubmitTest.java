@@ -23,52 +23,58 @@
  */
 package hudson.plugins.phing;
 
+import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import hudson.model.Descriptor;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.Builder;
 import hudson.util.DescribableList;
-import org.jvnet.hudson.test.HudsonTestCase;
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.last;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
 /**
  * Job Config submit Test
  *
  * @author Seiji Sogabe
  */
-public class PhingBuilderConfigSubmitTest extends HudsonTestCase {
+public class PhingBuilderConfigSubmitTest {
 
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
+    
     private WebClient webClient;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        webClient = new WebClient();
+    @Before
+    public void setUp() throws Exception {
+        webClient = j.createWebClient();
         webClient.setCssEnabled(false);
         webClient.setThrowExceptionOnFailingStatusCode(false);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testConfigsubmit() throws Exception {
-        FreeStyleProject p = createFreeStyleProject();
+        FreeStyleProject p = j.createFreeStyleProject();
         PhingBuilder builder = new PhingBuilder("Default", "build.xml", "install", null, true, null);
         p.getBuildersList().add(builder);
 
         HtmlForm form = webClient.goTo(p.getUrl() + "/configure").getFormByName("config");
         HtmlCheckBoxInput useModuleRootCheckBox = form.getInputByName("_.useModuleRoot");
 
-        assertTrue(useModuleRootCheckBox.isChecked());
+        assertThat(useModuleRootCheckBox.isChecked(), is(true));
 
         useModuleRootCheckBox.setChecked(false);
-        submit(form);
+        form.submit((HtmlButton)last(form.getHtmlElementsByTagName("button")));
 
         DescribableList<Builder, Descriptor<Builder>> builders = p.getBuildersList();
         PhingBuilder b = builders.get(PhingBuilder.class);
         
-        assertFalse(b.isUseModuleRoot());
+        assertThat(b.isUseModuleRoot(), is(false));
     }
 }
