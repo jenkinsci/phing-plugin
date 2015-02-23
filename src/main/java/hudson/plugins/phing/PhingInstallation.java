@@ -105,13 +105,20 @@ public final class PhingInstallation extends ToolInstallation
         return launcher.getChannel().call(new Callable<String, IOException>() {
             private static final long serialVersionUID = 1L;
 
+            @Override
             public String call() throws IOException {
-                final File exe = new File(new File(getHome(), "bin"), execName);
+                File exe = new File(new File(getHome(), "bin"), execName);
                 if (exe.exists()) {
                     return exe.getPath();
                 }
-                return null;
+                exe = new File(new File(getHome()), execName);
+                if (exe.exists()) {
+                    return exe.getPath();
+                }
+                launcher.getListener().getLogger().println("No phing found.");
+                return execName;
             }
+
         });
     }
 
