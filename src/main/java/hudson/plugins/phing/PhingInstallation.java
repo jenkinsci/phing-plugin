@@ -115,7 +115,6 @@ public final class PhingInstallation extends ToolInstallation
                 if (exe.exists()) {
                     return exe.getPath();
                 }
-                launcher.getListener().getLogger().println("No phing found.");
                 return execName;
             }
 
