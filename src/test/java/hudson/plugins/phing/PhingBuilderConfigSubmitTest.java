@@ -23,9 +23,9 @@
  */
 package hudson.plugins.phing;
 
-import com.gargoylesoftware.htmlunit.html.HtmlButton;
-import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlButton;
+import org.htmlunit.html.HtmlCheckBoxInput;
+import org.htmlunit.html.HtmlForm;
 import hudson.model.Descriptor;
 import hudson.model.FreeStyleProject;
 import hudson.tasks.Builder;
